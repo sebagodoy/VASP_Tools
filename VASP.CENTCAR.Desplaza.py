@@ -27,12 +27,14 @@ def GetAtomNameList(conjuntos):
 	return NameList
 
 ######################### Tools:fin #########################
+fileSystem = input('    > Use CENTCAR/MODECAR(1) or POSCAR(def=2) :') or '2'
 
-iFile1 = input('    Archivo de geometría central (def=CENTCAR) : ')
-if iFile1 == '': iFile1 = 'CENTCAR'
-
-iFile2 = input('    Archivo de direcciones    (def=NEWMODECAR) : ')
-if iFile2 == '': iFile2 = 'NEWMODECAR'
+if fileSystem == '1':
+	iFile1 = input('    Archivo de geometría central (def=CENTCAR) : ') or 'CENTCAR'
+	iFile2 = input('    Archivo de direcciones    (def=NEWMODECAR) : ') or 'MODECAR'
+elif fileSystem == '2':
+	iFile1 = input('    Archivo de geometría/dir.    (def=CONTCAR) : ') or 'CONTCAR'
+	iFile2 = iFile1
 
 
 
@@ -101,24 +103,32 @@ print('Ok')
 ######################################## Dirección de desplazamiento
 
 # Get data
-print("\n    > Abriendo "+iFile2, end=" ... ")
-with open(iFile2, 'r') as f:
-	content = f.readlines()
-	f.close()
-print('Ok')
+if fileSystem == '1':
+	print("\n    > Abriendo "+iFile2, end=" ... ")
+	with open(iFile2, 'r') as f:
+		content = f.readlines()
+		f.close()
+	print('Ok')
 
 # Get desplazamientos
 print('    > Obteniendo desplazamientos', end=' ... ')
 Desplz=[]
-for iLine in content:
-	ThisLine = iLine.split()
-	Desplz.append([float(ThisLine[0]), float(ThisLine[1]), float(ThisLine[2])])
+if fileSystem == '1':
+	for iLine in content:
+		ThisLine = iLine.split()
+		Desplz.append([float(ThisLine[0]), float(ThisLine[1]), float(ThisLine[2])])
+elif fileSystem == '2':
+	for iLine in content[iLine + nAtoms + 1 :]:
+		_iLine = [float(i) for i in iLine.split()]
+		if _iLine == []:
+			break
+		Desplz.append(_iLine)
 print('Ok')
 
 # Cantidades coinciden
 if len(CoordsCentral) == len(Desplz): print('    > Cantidad de coordenadas coinciden')
 else:
-	print('    > Cantidad de coordenadas no coincide, '+str(len(CoordsCentral))+' en'+iFile1+' y '+str(len(Desplz))+' en '+iFile2)
+	print('    > Cantidad de coordenadas no coincide, '+str(len(CoordsCentral))+' en'+iFile1+'(coords.) y '+str(len(Desplz))+' en '+iFile2 +' (displ.)')
 	print('    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 	print('    !! Qué? Así no se puede trabajar. !!')
 	print('    !! Adios!                         !!')
@@ -129,12 +139,19 @@ else:
 
 # Direcciones de imágenes
 direct = input('\n    Dirección de desplazamiento (f/b/def=both) : ')
-if not direct=='f' or not direct=='b': direct='both'
+print(direct)
+#if not direct=='f' or not direct=='b': direct='both'
+if not direct: direct ='both'
+print(direct)
 
 # Cantidad de imágenes
 nImages = input('    Cantidad de imágenes desplazadas (def=5)   : ')
 if nImages == '': nImages = 5
 else: nImages = int(nImages)
+
+# Scale factor
+ScaleFactor = input('    Scale of displacements (def=1.0)           : ') or 1.
+ScaleFactor = float(ScaleFactor)
 
 #### Deleting images at the end
 if input('    Borrar imágenes individuales (def=y/n)') ==  'n': DelImg = False
@@ -169,7 +186,7 @@ for iDespl in ImagenDesplaza:
 
 		for iAt in range(nAtoms):
 			for jCoor in range(3):
-				ThisCoord = CoordsCentral[iAt][jCoor]+iDespl*Desplz[iAt][jCoor]/100
+				ThisCoord = CoordsCentral[iAt][jCoor]+iDespl*Desplz[iAt][jCoor]*ScaleFactor/100
 				f.write('  '+str('{:.16f}'.format(ThisCoord)))
 			for jDyn in range(3):
 				f.write('   '+DynamicsCentral[iAt][jDyn])
@@ -197,7 +214,7 @@ def FixBlanck(iStr, **kwargs):
 ImagesCounter = 1
 Head = None
 Natoms = 0
-OutFile = 'nebMovie_XDATCAR5'
+OutFile = 'dimMovie_XDATCAR5'
 FileMovList.sort()
 
 try:

@@ -278,7 +278,8 @@ if len(freqI) > 0:
 		while len(tmpStrImg)<67: tmpStrImg+=" "
 		print(tmpStrImg+"!!")
 	print("            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-print("            Se obtienen "+str(len(ModePos))+" configuraciones y "+str(len(ModeDespl))+" modos de vibración correspondientes")
+print("            Se obtienen "+str(len(ModePos))+" configuraciones y "+
+	  str(len(ModeDespl))+" modos de vibración correspondientes")
 
 if len(freqI) > 0:
 	print("            De estos, sólo se calculará la intensidad de los "+str(len(freqR))+" modos reales\n")
@@ -323,10 +324,10 @@ for iMode in ModeDesplNormal:
 	DirectDipolDeriv.append(tmpDirectDipolDeriv)
 		
 # Debug
-#print("Debug DirectDipolDeriv")
-#for i in DirectDipolDeriv:
-#	print(i)
-#print("..............................................")
+# print("Debug DirectDipolDeriv")
+# for i in DirectDipolDeriv:
+# 	print(i)
+# print("..............................................")
 	
 # -------------------------------------------------------------------------------------------------
 # Estimando intensidades relativas - Agrupa x, y, z

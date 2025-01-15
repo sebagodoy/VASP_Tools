@@ -52,7 +52,7 @@ try:
 		AtomType_POTCAR = []
 		AtomMass_POTCAR = []
 		for iLine in f.readlines():
-			if 'VRHFIN' in iLine: AtomType_POTCAR.append(iLine.split('=')[1].split(':')[0])
+			if 'VRHFIN' in iLine: AtomType_POTCAR.append(iLine.split('=')[1].split(':')[0].strip())
 			elif 'POMASS' in iLine: AtomMass_POTCAR.append(float(iLine.split('=')[1].split(';')[0]))
 
 	# Check POTCAR mass information is complete (each   ato m type has a mass)
@@ -378,6 +378,10 @@ else:
 	ReportFreqList(FqImgcm) #  cm-1
 print('\n')
 
+CodeStatus("List of frequencies (cm-1)\n")
+print(" "*8 + "Real : "+str( [float("{:.6f}".format(i)) for i in FqRealcm] ) )
+print(" "*8 + "Img  : "+str( [float("{:.6f}".format(i)) for i in FqImgcm] ) )
+print("")
 
 
 ################################################################################################################################
@@ -406,10 +410,24 @@ except:
 	CodeStatus('What\'s that? Using default value = 100 cm-1')
 	CutOff = 100
 
+# Replace lower tha cutoff
+ReplaceOrNot = input('  '*2+'> Replace lower freqs with the CutOff for ZPVE? (def=yes/*=No) = ')
+
+# Replace Imaginary freqs
+ReplaceImg = input('  '*2+'> Replace imaginary frequencies by adding to real freqs = ')
+if ReplaceImg:
+	_asd = [float(i) for i in ReplaceImg.split(';')]
+	for i in _asd: FqRealcm.append(i)
+
 # ZPVE summ
 ZPVE = 0
 for iFq in FqRealcm:
-	if iFq > CutOff: ZPVE+=fZPVEi(iFq)
+	if iFq > CutOff: 
+		print(iFq, end=' ; ')
+		ZPVE+=fZPVEi(iFq)
+	elif not ReplaceOrNot:
+		print(CutOff, end=' ; ') 
+		ZPVE+=fZPVEi(CutOff)
 
 # Report
 print()
@@ -422,5 +440,5 @@ for  iF in FqRealcm:
 	print(FixNumBlanck(fZPVEi(iF), l=4, d=4), end=' ' * 3) # eV
 print('')
 
-CodeStatus('Accumulated ZPVE   (eV) : '+str(FixNumBlanck(ZPVE, l=0))+' eV\n')
+CodeStatus('Accumulated ZPVE   (eV) : '+str(FixNumBlanck(ZPVE, d=10, l=0))+' eV\n')
 

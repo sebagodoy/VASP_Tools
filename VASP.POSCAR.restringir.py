@@ -3,7 +3,7 @@
 
 print('Modificar Selective dynamics de archivo en formato POSCAR/CONTCAR')
 
-iFile = input('    Nombre de archivo : ')
+iFile = input('    Nombre de archivo : ') or "POSCAR"
 
 
 ######################### Tools:ini #########################
